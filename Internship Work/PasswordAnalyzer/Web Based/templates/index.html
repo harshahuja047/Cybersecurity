@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator & Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Password Generator & Analyzer</h1>
+        <div class="password-generator">
+            <label for="length">Password Length:</label>
+            <input type="number" id="length" name="length" min="8" max="128" value="16">
+            <button id="generate">Generate Password</button>
+            <input type="text" id="password" readonly>
+        </div>
+        <div class="password-analyzer">
+            <label for="analyze">Analyze Password:</label>
+            <input type="text" id="analyze">
+            <button id="analyze-btn">Analyze</button>
+            <div id="analysis-result"></div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
