@@ -1,3 +1,4 @@
+
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 from Crypto.Cipher import AES, PKCS1_OAEP, DES
@@ -16,7 +17,7 @@ class HoverButton(tk.Button):
         self.bind("<Leave>", self.on_leave)
 
     def on_enter(self, e):
-        self['background'] = self['background']
+        self['background'] = '#333333'
 
     def on_leave(self, e):
         self['background'] = self.defaultBackground
@@ -71,7 +72,6 @@ class EncryptionApp:
                 key = get_random_bytes(16)  # Generate a random 128-bit key
                 iv = get_random_bytes(16)  # Generate a random IV
                 cipher = AES.new(key, AES.MODE_CBC, iv)
-                # Pad the plaintext to be a multiple of 16 bytes
                 padded_plaintext = self.pad(plaintext)
                 ciphertext = cipher.encrypt(padded_plaintext)
                 encrypted_data = iv + ciphertext
@@ -79,16 +79,14 @@ class EncryptionApp:
             elif algorithm == "DES":
                 key = get_random_bytes(8)  # Generate a random 64-bit key for DES
                 cipher = DES.new(key, DES.MODE_ECB)
-                # DES requires the plaintext to be a multiple of 8 bytes, so we pad it
                 padded_plaintext = plaintext + b"\0" * (8 - len(plaintext) % 8)
                 encrypted_data = cipher.encrypt(padded_plaintext)
                 self.save_key_to_file(key, None, "DES")
             elif algorithm == "RSA":
                 key = RSA.generate(2048)
-                cipher = RSA.import_key(key.publickey().export_key())
-                cipher = PKCS1_OAEP.new(cipher)
+                cipher = PKCS1_OAEP.new(key.publickey())
                 encrypted_data = cipher.encrypt(plaintext)
-                self.save_key_to_file(key.export_key("PEM"), None, "RSA")
+                self.save_key_to_file(key, None, "RSA")
 
             self.encrypted_text.delete(1.0, tk.END)
             self.encrypted_text.insert(tk.END, base64.b64encode(encrypted_data).decode('utf-8'))
@@ -98,7 +96,7 @@ class EncryptionApp:
 
     def decrypt_text(self):
         try:
-            encrypted_data = base64.b64decode(self.encrypted_text.get(1.0, tk.END))
+            encrypted_data = base64.b64decode(self.encrypted_text.get(1.0, tk.END).strip())
             algorithm = self.encryption_algorithm.get()
 
             if algorithm == "AES":
@@ -119,10 +117,10 @@ class EncryptionApp:
                 cipher = DES.new(key, DES.MODE_ECB)
                 plaintext = cipher.decrypt(encrypted_data).rstrip(b"\0")  # Remove padding
             elif algorithm == "RSA":
-                key = self.load_key_from_file("RSA")
-                if not key:
+                private_key_pem = simpledialog.askstring("Enter Private Key", "Please enter the RSA private key (PEM format):")
+                if not private_key_pem:
                     return
-                key = RSA.import_key(key)
+                key = RSA.import_key(private_key_pem)
                 cipher = PKCS1_OAEP.new(key)
                 plaintext = cipher.decrypt(encrypted_data)
 
@@ -131,10 +129,8 @@ class EncryptionApp:
             self.decrypted_text.insert(tk.END, plaintext.decode('utf-8'))
             self.decrypted_text.config(state='disabled')
 
-            # Schedule the clear_text function to be called after 9 seconds
             self.master.after(9000, self.clear_text)
-        except:
-            messagebox.showerror("Error", "Decryption failed.")
+        except Exception as e:messagebox.showerror("Error", f"Decryption failed: {str(e)}")
 
     def clear_text(self):
         self.decrypted_text.config(state='normal')
@@ -145,7 +141,7 @@ class EncryptionApp:
         filename = os.path.join(KEY_DIR, f"{algorithm}_key.txt")
         with open(filename, "wb") as file:
             if algorithm == "RSA":
-                file.write(base64.b64encode(key))
+                file.write(key.export_key("PEM"))
             else:
                 file.write(b"Key = " + base64.b64encode(key))
                 if iv:
@@ -179,3 +175,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+           
